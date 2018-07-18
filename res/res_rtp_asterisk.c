@@ -6102,13 +6102,27 @@ static int rtp_red_buffer(struct ast_rtp_instance *instance, struct ast_frame *f
 {
 	struct ast_rtp *rtp = ast_rtp_instance_get_data(instance);
 
+	if ( !rtp->red ) return 0;
 	if (frame->datalen > -1) {
 		struct rtp_red *red = rtp->red;
+		const unsigned char * primary = red->buf_data;
+		if (red->t140.datalen > 0 &&
+		    (primary[0] == 0x08 || primary[0] == 0x0a || primary[0] == 0x0d)) {
+			/* flush previous t140 packet if it is a command */
+			ast_rtp_write(instance, &rtp->red->t140);
+		}
+		else {
+			primary = frame->data.ptr;
+			if (primary[0] == 0x08 || primary[0] == 0x0a || primary[0] == 0x0d) {
+				/* flush previous t140 packet we send commands */
+				ast_rtp_write(instance, &rtp->red->t140);
+			}
+		}
+
 		memcpy(&red->buf_data[red->t140.datalen], frame->data.ptr, frame->datalen);
 		red->t140.datalen += frame->datalen;
 		red->t140.ts = frame->ts;
 	}
-
 	return 0;
 }
 
