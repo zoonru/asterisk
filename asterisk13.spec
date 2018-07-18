@@ -4,9 +4,9 @@
 #%define docdir /usr/share/doc/asterisk
 %define logdir /var/log
 %define _without_misdn 1
-%define _without_dhdi 1
+%define _without_dahdi 1
 %define _without_bluetooth 1
-
+%define _without_resample 1
 Summary: Asterisk, The Open Source PBX
 Name: asterisk13
 Version: 13.22.1
@@ -14,14 +14,6 @@ Version: 13.22.1
 Release: 1%{?dist}
 License: GPL
 Group: Utilities/System
-Source: https://downloads.asterisk.org/pub/telephony/asterisk/old-releases/asterisk-%{version}.tar.gz
-Source2: asterisk.logrotate
-Patch2: voicemail-splitopts.patch
-Patch3: voicemail-splitopts-odbcstorage.patch
-Patch4: voicemail-splitopts-imapstorage.patch
-Patch6: lazymembers.patch
-Patch8: ASTERISK-rb3984.patch
-Patch9: increase-max-stack.patch
 
 BuildRoot: %{_tmppath}/asterisk-%{version}-root
 URL: http://www.asterisk.org
@@ -46,15 +38,13 @@ Requires: spandsp
 BuildRequires: spandsp-devel
 Requires: libical
 BuildRequires: libical-devel
-Requires: libsrtp15
-BuildRequires: libsrtp15-devel
+Requires: libsrtp
+BuildRequires: libsrtp-devel
 Requires: freeradius
 Requires: radiusclient-ng
 BuildRequires: radiusclient-ng-devel
 Requires: jack-audio-connection-kit
 BuildRequires: jack-audio-connection-kit-devel
-Requires: libresample
-BuildRequires: libresample-devel
 Requires: openldap
 BuildRequires: openldap-devel
 Requires: sqlite
@@ -554,27 +544,9 @@ chan_ooh323 module for Asterisk
 %endif
 
 %prep
-%setup -n asterisk-%{version}
+echo checkout desactive pour ce pkg.Pour permettre une compil sur les machines sibles
+echo %{version}-videocaps > %{name}/.version
 
-# Create copies for odbcstorage and imapstorage voicemail modules.
-%{?_without_voicemail_odbcstorage:%if 0}
-%{!?_without_voicemail_odbcstorage:%if 1}
-cp apps/app_voicemail.c apps/app_voicemail_odbcstorage.c
-cp apps/app_voicemail.exports.in apps/app_voicemail_odbcstorage.exports.in
-%patch3 -p0
-%endif
-
-%{?_without_voicemail_imapstorage:%if 0}
-%{!?_without_voicemail_imapstorage:%if 1}
-cp apps/app_voicemail.c apps/app_voicemail_imapstorage.c
-cp apps/app_voicemail.exports.in apps/app_voicemail_imapstorage.exports.in
-%patch4 -p0
-%endif
-
-%patch2 -p0
-%patch6 -p1
-%patch8 -p0
-%patch9 -p1
 
 %build
 %ifarch x86_64
@@ -585,12 +557,12 @@ cp apps/app_voicemail.exports.in apps/app_voicemail_imapstorage.exports.in
 echo %{version}%{?_without_optimizations:-debug} > .version
 
 # Use Bundled pjproject
-./configure --libdir=%{_libdir} --with-pjproject-bundled
+cd %{name}
+./configure --prefix=/usr --libdir=%{_libdir} --with-pjproject-bundled
 make menuselect.makeopts
 #menuselect/menuselect --list-options to get the options passed below
 menuselect/menuselect --disable-category MENUSELECT_CORE_SOUNDS --disable-category MENUSELECT_EXTRA_SOUNDS --disable-category MENUSELECT_MOH --enable-category MENUSELECT_ADDONS --enable res_pktccops --enable chan_mgcp --enable chan_motif --enable app_meetme --enable app_page --enable res_snmp --enable res_srtp --enable DONT_OPTIMIZE --disable BUILD_NATIVE --enable res_statsd --enable res_chan_stats --enable res_endpoint_stats --enable codec_opus --enable codec_silk --enable codec_siren7 --enable codec_siren14 menuselect.makeopts
 
-contrib/scripts/get_mp3_source.sh
 
 make %{?_smp_mflags} %{makeflags}
 

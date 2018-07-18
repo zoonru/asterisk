@@ -49,6 +49,7 @@ function create_rpm
     # asteriskv.spec.ives
     echo "Nettoyage et copie de l'arbre de source vers l'env de build RPM"
     make clean > /dev/null
+    rm -rf $HOME/rpmbuild/BUILD/${PROJET}
     cp -rp . $HOME/rpmbuild/BUILD/${PROJET}
 
      if [[ -z $1 || $1 -ne nosign ]]
