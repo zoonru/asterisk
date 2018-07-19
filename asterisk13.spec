@@ -7,6 +7,9 @@
 %define _without_dahdi 1
 %define _without_bluetooth 1
 %define _without_resample 1
+%define _without_voicemail_odbcstorage 1
+%define _without_voicemail_imapstorage 1
+
 Summary: Asterisk, The Open Source PBX
 Name: asterisk13
 Version: 13.22.1
@@ -666,6 +669,7 @@ cd $RPM_BUILD_DIR
 %{_libdir}/asterisk/modules/app_mp3.so
 %{_libdir}/asterisk/modules/app_nbscat.so
 %{_libdir}/asterisk/modules/app_originate.so
+%{_libdir}/asterisk/modules/app_page.so
 %{_libdir}/asterisk/modules/app_playback.so
 %{_libdir}/asterisk/modules/app_playtones.so
 %{_libdir}/asterisk/modules/app_privacy.so
@@ -711,6 +715,7 @@ cd $RPM_BUILD_DIR
 %{_libdir}/asterisk/modules/chan_phone.so
 %{_libdir}/asterisk/modules/chan_skinny.so
 %{_libdir}/asterisk/modules/chan_sip.so
+%{_libdir}/asterisk/modules/chan_mobile.so
 %{_libdir}/asterisk/modules/chan_unistim.so
 %{_libdir}/asterisk/modules/codec_adpcm.so
 %{_libdir}/asterisk/modules/codec_alaw.so
@@ -724,6 +729,7 @@ cd $RPM_BUILD_DIR
 %{_libdir}/asterisk/modules/codec_siren14.so
 %{_libdir}/asterisk/modules/codec_siren7.so
 %{_libdir}/asterisk/modules/codec_ulaw.so
+%{_libdir}/asterisk/modules/codec_resample.so
 %{_libdir}/asterisk/modules/format_g719.so
 %{_libdir}/asterisk/modules/format_g723.so
 %{_libdir}/asterisk/modules/format_g726.so
@@ -815,6 +821,7 @@ cd $RPM_BUILD_DIR
 %{_libdir}/asterisk/modules/res_hep.so
 %{_libdir}/asterisk/modules/res_hep_pjsip.so
 %{_libdir}/asterisk/modules/res_hep_rtcp.so
+%{_libdir}/asterisk/modules/res_http_post.so
 %{_libdir}/asterisk/modules/res_limit.so
 %{_libdir}/asterisk/modules/res_manager_devicestate.so
 %{_libdir}/asterisk/modules/res_manager_presencestate.so
