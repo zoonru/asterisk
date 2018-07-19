@@ -954,7 +954,7 @@ cd $RPM_BUILD_DIR
 %attr(0750,asterisk,asterisk) %dir %{logdir}/asterisk/cdr-custom
 
 
-%config %{_sysconfdir}/logrotate.d/asterisk
+#%config %{_sysconfdir}/logrotate.d/asterisk
 
 %attr(0775,asterisk,asterisk) %dir /var/run/asterisk
 
@@ -1383,9 +1383,9 @@ cd $RPM_BUILD_DIR
 %files addons
 %defattr(-, root, root)
 
-%files addons-core
-%defattr(-, root, root)
-%{_libdir}/asterisk/modules/format_mp3.so
+# %files addons-core
+#%defattr(-, root, root)
+#%{_libdir}/asterisk/modules/format_mp3.so
 
 %{?_without_mysql:%if 0}
 %{!?_without_mysql:%if 1}
