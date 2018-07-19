@@ -14,7 +14,7 @@ Version: 13.22.1
 Release: 1%{?dist}
 License: GPL
 Group: Utilities/System
-
+# Source2: asterisk.logrotate
 BuildRoot: %{_tmppath}/asterisk-%{version}-root
 URL: http://www.asterisk.org
 Packager: Nethesis <info@nethesis.it>
@@ -569,7 +569,7 @@ make %{?_smp_mflags} %{makeflags}
 %install
 echo DEBUG
 pwd
-
+cd %{name}
 mkdir -p $RPM_BUILD_ROOT/home/asterisk/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/init.d/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/
@@ -581,9 +581,9 @@ make DESTDIR=$RPM_BUILD_ROOT install
 make DESTDIR=$RPM_BUILD_ROOT samples
 make DESTDIR=$RPM_BUILD_ROOT config
 
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/
-cp %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/asterisk
-echo -e "#This comment is to fix rpm file replacing\n#Config file built on $(date)" >> $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/asterisk
+#mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/
+#cp %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/asterisk
+#echo -e "#This comment is to fix rpm file replacing\n#Config file built on $(date)" >> $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/asterisk
 
 mkdir -p $RPM_BUILD_ROOT/var/lib/asterisk/licenses/
 mkdir -p $RPM_BUILD_ROOT/var/lib/digium/licenses/
@@ -658,7 +658,6 @@ cd $RPM_BUILD_DIR
 %{_libdir}/asterisk/modules/app_getcpeid.so
 %{_libdir}/asterisk/modules/app_ices.so
 %{_libdir}/asterisk/modules/app_image.so
-%{_libdir}/asterisk/modules/app_jack.so
 %{_libdir}/asterisk/modules/app_macro.so
 %{_libdir}/asterisk/modules/app_milliwatt.so
 %{_libdir}/asterisk/modules/app_minivm.so
@@ -743,7 +742,6 @@ cd $RPM_BUILD_DIR
 %{_libdir}/asterisk/modules/format_wav_gsm.so
 %{_libdir}/asterisk/modules/format_wav.so
 %{_libdir}/asterisk/modules/func_aes.so
-%{_libdir}/asterisk/modules/func_audiohookinherit.so
 %{_libdir}/asterisk/modules/func_base64.so
 %{_libdir}/asterisk/modules/func_blacklist.so
 %{_libdir}/asterisk/modules/func_callcompletion.so
@@ -843,7 +841,6 @@ cd $RPM_BUILD_DIR
 %{_libdir}/asterisk/modules/func_hangupcause.so
 %{_libdir}/asterisk/modules/res_config_sqlite3.so
 %{_libdir}/asterisk/modules/res_http_websocket.so
-%{_libdir}/asterisk/modules/res_mwi_devstate.so
 %{_libdir}/asterisk/modules/res_srtp.so
 %{_libdir}/asterisk/modules/app_agent_pool.so
 %{_libdir}/asterisk/modules/app_bridgewait.so
@@ -893,7 +890,6 @@ cd $RPM_BUILD_DIR
 %{_libdir}/asterisk/modules/res_pjsip_publish_asterisk.so
 %{_libdir}/asterisk/modules/res_pjsip_refer.so
 %{_libdir}/asterisk/modules/res_pjsip_registrar.so
-%{_libdir}/asterisk/modules/res_pjsip_registrar_expire.so
 %{_libdir}/asterisk/modules/res_pjsip_rfc3326.so
 %{_libdir}/asterisk/modules/res_pjsip_sdp_rtp.so
 %{_libdir}/asterisk/modules/res_pjsip_session.so
@@ -924,7 +920,6 @@ cd $RPM_BUILD_DIR
 %{_libdir}/asterisk/modules/func_pjsip_aor.so
 %{_libdir}/asterisk/modules/func_pjsip_contact.so
 %{_libdir}/asterisk/modules/res_pjsip_config_wizard.so
-%{_libdir}/asterisk/modules/res_pjsip_transport_management.so
 %{_libdir}/asterisk/modules/res_pjsip_sips_contact.so
 %{_libdir}/asterisk/modules/func_holdintercept.so
 %{_libdir}/asterisk/modules/res_odbc_transaction.so
@@ -1413,6 +1408,9 @@ cd $RPM_BUILD_DIR
 %endif
 
 %changelog
+* Thu Jul 19 2018 Emmanuel BUU <emmanuel.buu@ives.fr> - 13.22.0
+- used this .spec file for IVeS packaging.
+
 * Thu Jan 25 2018 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 13.17.2-3-1
 - PBX: Asterisk logs aren't rotated - Bug NethServer/dev#5411
 
