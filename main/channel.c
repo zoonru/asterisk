@@ -3142,7 +3142,16 @@ struct ast_channel *ast_waitfor_nandfds(struct ast_channel **c, int n, int *fds,
 			max += ast_add_fd(&pfds[max], ast_channel_fd(c[x], y));
 		}
 		ast_channel_lock(c[x]);
-		CHECK_BLOCKING(c[x]);
+		if (ast_test_flag(ast_channel_flags(c[x]), AST_FLAG_BLOCKING)) {
+			if (((void *) pthread_self()) == ((void *) ast_channel_blocker(c[x]))) {
+				ast_debug(1, "Blocked by same thread WTFWTFWTF\n"); 
+			}
+			ast_debug(1, "Thread %p is blocking '%s', already blocked by thread %p in procedure %s\n", 
+				(void *) pthread_self(), ast_channel_name(c[x]), (void *) ast_channel_blocker(c[x]), ast_channel_blockproc(c[x])); 
+		} else { 
+			ast_channel_blocker_set((c[x]), pthread_self()); ast_channel_blockproc_set((c[x]), __PRETTY_FUNCTION__); ast_set_flag(ast_channel_flags(c[x]), AST_FLAG_BLOCKING); 
+		}
+		//CHECK_BLOCKING(c[x]);
 		ast_channel_unlock(c[x]);
 	}
 	/* Add the individual fds */
@@ -4374,7 +4383,7 @@ static struct ast_frame *__ast_read(struct ast_channel *chan, int dropaudio)
 	}
 
 	/* High bit prints debugging */
-	if (ast_channel_fin(chan) & DEBUGCHAN_FLAG)
+	//if (ast_channel_fin(chan) & DEBUGCHAN_FLAG)
 		ast_frame_dump(ast_channel_name(chan), f, "<<");
 	ast_channel_fin_set(chan, FRAMECOUNT_INC(ast_channel_fin(chan)));
 

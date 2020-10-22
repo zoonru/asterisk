@@ -2502,6 +2502,7 @@ int ast_bridge_add_channel(struct ast_bridge *bridge, struct ast_channel *chan,
 	ast_channel_unlock(chan);
 
 	if (chan_bridge) {
+		fprintf(stderr, "WE BRIDGED\n");
 		struct ast_bridge_channel *bridge_channel;
 
 		/* The channel is in a bridge so it is not getting any new features. */
@@ -2533,6 +2534,7 @@ int ast_bridge_add_channel(struct ast_bridge *bridge, struct ast_channel *chan,
 		/* Slightly less easy case. We need to yank channel A from
 		 * where he currently is and impart him into our bridge.
 		 */
+		fprintf(stderr, "YANKING CHANNEL\n");
 		yanked_chan = ast_channel_yank(chan);
 		if (!yanked_chan) {
 			ast_log(LOG_WARNING, "Could not gain control of channel %s\n", ast_channel_name(chan));
