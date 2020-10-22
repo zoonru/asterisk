@@ -229,6 +229,93 @@ int sip_acf_channel_read(struct ast_channel *chan, const char *funcname, char *p
 		}
 
 		snprintf(buf, buflen, "%s", ast_sockaddr_stringify(&sa));
+	} else if (!strcasecmp(args.param, "rtpqosjson")) {
+		struct ast_rtp_instance *rtp = NULL;
+
+		if (ast_strlen_zero(args.type)) {
+			args.type = "audio";
+		}
+
+		if (!strcasecmp(args.type, "audio")) {
+			rtp = p->rtp;
+		} else if (!strcasecmp(args.type, "video")) {
+			rtp = p->vrtp;
+		} else if (!strcasecmp(args.type, "text")) {
+			rtp = p->trtp;
+		} else {
+			return -1;
+		}
+
+		struct ast_rtp_instance_stats stats;
+		if (ast_rtp_instance_get_stats(rtp, &stats, AST_RTP_INSTANCE_STAT_ALL)) {
+			return -1;
+		}
+
+		int i;
+		struct {
+			const char *name;
+			enum { INT, DBL } type;
+			union {
+				unsigned int *i4;
+				double *d8;
+			};
+		} lookup[] = {
+			{ "txcount",               INT, { .i4 = &stats.txcount, }, },
+			{ "rxcount",               INT, { .i4 = &stats.rxcount, }, },
+			{ "txjitter",              DBL, { .d8 = &stats.txjitter, }, },
+			{ "rxjitter",              DBL, { .d8 = &stats.rxjitter, }, },
+			{ "remote_maxjitter",      DBL, { .d8 = &stats.remote_maxjitter, }, },
+			{ "remote_minjitter",      DBL, { .d8 = &stats.remote_minjitter, }, },
+			{ "remote_normdevjitter",  DBL, { .d8 = &stats.remote_normdevjitter, }, },
+			{ "remote_stdevjitter",    DBL, { .d8 = &stats.remote_stdevjitter, }, },
+			{ "local_maxjitter",       DBL, { .d8 = &stats.local_maxjitter, }, },
+			{ "local_minjitter",       DBL, { .d8 = &stats.local_minjitter, }, },
+			{ "local_normdevjitter",   DBL, { .d8 = &stats.local_normdevjitter, }, },
+			{ "local_stdevjitter",     DBL, { .d8 = &stats.local_stdevjitter, }, },
+			{ "txploss",               INT, { .i4 = &stats.txploss, }, },
+			{ "rxploss",               INT, { .i4 = &stats.rxploss, }, },
+			{ "remote_maxrxploss",     DBL, { .d8 = &stats.remote_maxrxploss, }, },
+			{ "remote_minrxploss",     DBL, { .d8 = &stats.remote_minrxploss, }, },
+			{ "remote_normdevrxploss", DBL, { .d8 = &stats.remote_normdevrxploss, }, },
+			{ "remote_stdevrxploss",   DBL, { .d8 = &stats.remote_stdevrxploss, }, },
+			{ "local_maxrxploss",      DBL, { .d8 = &stats.local_maxrxploss, }, },
+			{ "local_minrxploss",      DBL, { .d8 = &stats.local_minrxploss, }, },
+			{ "local_normdevrxploss",  DBL, { .d8 = &stats.local_normdevrxploss, }, },
+			{ "local_stdevrxploss",    DBL, { .d8 = &stats.local_stdevrxploss, }, },
+			{ "rtt",                   DBL, { .d8 = &stats.rtt, }, },
+			{ "maxrtt",                DBL, { .d8 = &stats.maxrtt, }, },
+			{ "minrtt",                DBL, { .d8 = &stats.minrtt, }, },
+			{ "normdevrtt",            DBL, { .d8 = &stats.normdevrtt, }, },
+			{ "stdevrtt",              DBL, { .d8 = &stats.stdevrtt, }, },
+			{ "local_ssrc",            INT, { .i4 = &stats.local_ssrc, }, },
+			{ "remote_ssrc",           INT, { .i4 = &stats.remote_ssrc, }, },
+			{ NULL, },
+		};
+
+		int wrote = snprintf(buf, buflen, "{");
+		if (wrote < 0 || wrote == buflen) {
+			ast_log(LOG_WARNING, "Buffer isn't long enough to write stats!\n");
+			return -1;
+		}
+		buf += wrote;
+		buflen -= wrote;
+		for (i = 0; !ast_strlen_zero(lookup[i].name); i++) {
+			if (lookup[i].type == INT) {
+				wrote = snprintf(buf, buflen, "\"%s\":%u,", lookup[i].name, *lookup[i].i4);
+			} else if (*lookup[i].d8 != INFINITY && *lookup[i].d8 != NAN) {
+				wrote = snprintf(buf, buflen, "\"%s\":%f,", lookup[i].name, *lookup[i].d8);
+			} else {
+				wrote = 0;
+			}
+			if (wrote < 0 || wrote == buflen) {
+				ast_log(LOG_WARNING, "Buffer isn't long enough to write stats!\n");
+				return -1;
+			}
+			buf += wrote;
+			buflen -= wrote;
+		}
+		*(buf - 1) = '}';
+		return 0;
 	} else if (!strcasecmp(args.param, "rtpqos")) {
 		struct ast_rtp_instance *rtp = NULL;
 
