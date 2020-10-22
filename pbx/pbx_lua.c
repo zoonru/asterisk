@@ -138,6 +138,8 @@ static void lua_state_destroy(void *data)
  */
 static void lua_datastore_fixup(void *data, struct ast_channel *old_chan, struct ast_channel *new_chan)
 {
+	ast_log(LOG_ERROR, "Would have fixed up lua datastore, ignoring");
+	return;
 	lua_State *L = data;
 	lua_pushlightuserdata(L, new_chan);
 	lua_setfield(L, LUA_REGISTRYINDEX, "channel");
